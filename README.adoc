@@ -1,0 +1,96 @@
+= MariaDB liquibase jooq codegen maven plugin (marialjc) [COMING SOON]
+
+This maven plugin is a composition of liquibase maven plugin `+update+` goal and jooq codegen maven
+plugin `+generate+` goal with dockerized mariadb running in context of these two goals.
+
+It was created many years ago but open sourced only in 2023. And now there is another
+https://github.com/testcontainers/testcontainers-jooq-codegen-maven-plugin[project] that
+could help you to do similar thing, and it will be fair to mention it, so you can choose plugin
+that fits you the best.
+
+You can find some other related plugins within https://github.com/raman-babich/dbljc[dbljc project].
+
+== Quick start
+
+Simply add `+marialjc maven plugin+` to your pom and specify `+generate+` goal in the executions section.
+You can walk through the listing below to get the idea of plugin configuration. All properties
+related to database connection will be handled by plugin for you.
+
+[source,xml]
+----
+<plugin>
+  <groupId>com.ramanbabich.dbljc</groupId>
+  <artifactId>marialjc-maven-plugin</artifactId>
+  <version>${marialjc-maven-plugin.version}</version>
+  <configuration>
+    <mariaDockerImageName>mariadb:10.11.4</mariaDockerImageName>
+    <mariaJdbcDriverVersion>3.1.4</mariaJdbcDriverVersion>
+    <liquibaseMavenPluginVersion>4.22.0</liquibaseMavenPluginVersion>
+    <jooqCodegenMavenPluginVersion>3.18.4</jooqCodegenMavenPluginVersion>
+    <liquibaseConfiguration>
+      <!-- this section is the configuration section of the liquibase maven plugin to execute
+      update goal, you can find more details on the official site.
+      https://docs.liquibase.com/tools-integrations/maven/commands/maven-update.html -->
+      <changeLogFile>/com/ramanbabich/dbljc/marialjcmavenplugin/liquibase/changelog/db.changelog-master.yaml</changeLogFile>
+    </liquibaseConfiguration>
+    <jooqConfiguration>
+      <!-- this section is the configuration section of the jooq codegen maven plugin to execute
+      generate goal, you can find more details on the official site.
+      https://www.jooq.org/doc/latest/manual/code-generation/codegen-maven/ -->
+      <generator>
+        <database>
+          <inputSchema>public</inputSchema>
+        </database>
+        <target>
+          <packageName>com.ramanbabich.dbljc.marialjcmavenplugin.jooq</packageName>
+        </target>
+      </generator>
+    </jooqConfiguration>
+  </configuration>
+  <executions>
+    <execution>
+      <id>marialjc-generate</id>
+      <goals>
+        <goal>generate</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
+NOTE: Internal structures of `+liquibaseConfiguration+` and `+jooqConfiguration+` sections are
+dynamic and heavily depend on the versions provided in `+liquibaseMavenPluginVersion+` and
+`+jooqCodegenMavenPluginVersion+` accordingly.
+
+== Internals
+
+The marialjc maven plugin internally uses
+https://github.com/liquibase/liquibase/tree/master/liquibase-maven-plugin[liquibase-maven-plugin],
+https://github.com/jOOQ/jOOQ/tree/main/jOOQ-codegen-maven[jooq-codegen-maven-plugin],
+https://github.com/testcontainers/testcontainers-java[testcontainers] and
+https://github.com/mojo-executor/mojo-executor[mojo-executor].
+And the tiny thing this plugin do could be described with a few lines of code.
+
+[source,java]
+----
+try (MariaDBContainer<?> maria = new MariaDBContainer<>(mariaDockerImageName)) {
+  maria.start();
+  MojoExecutor.executeMojo(
+      liquibaseMavenPlugin(liquibaseMavenPluginVersion, mariaJdbcDriverVersion),
+      MojoExecutor.goal(LIQUIBASE_MAVEN_PLUGIN_GOAL),
+      setLiquibaseDbConnectionValues(liquibaseConfiguration, maria),
+      MojoExecutor.executionEnvironment(project, session, buildPluginManager));
+  MojoExecutor.executeMojo(
+      jooqCodegenMavenPlugin(jooqCodegenMavenPluginVersion, mariaJdbcDriverVersion),
+      MojoExecutor.goal(JOOQ_CODEGEN_MAVEN_PLUGIN_GOAL),
+      setJooqDbConnectionValues(jooqConfiguration, maria),
+      MojoExecutor.executionEnvironment(project, session, buildPluginManager));
+}
+----
+
+NOTE: If you are curious enough, this plugin implementation contains only one java file,
+so don't be scared to look through it.
+
+== License
+
+Licensed under the Apache License, Version 2.0
