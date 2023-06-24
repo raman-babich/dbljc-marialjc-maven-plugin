@@ -1,4 +1,4 @@
-= MariaDB liquibase jooq codegen maven plugin (marialjc) [COMING SOON]
+= MariaDB liquibase jooq codegen maven plugin (marialjc)
 
 This maven plugin is a composition of liquibase maven plugin `+update+` goal and jooq codegen maven
 plugin `+generate+` goal with dockerized mariadb running in context of these two goals.
