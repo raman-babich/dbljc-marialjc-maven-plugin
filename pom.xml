@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ramanbabich.dbljc</groupId>
   <artifactId>marialjc-maven-plugin</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <packaging>maven-plugin</packaging>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>MariaDB liquibase jooq codegen maven plugin (marialjc)</description>
@@ -377,7 +377,7 @@ limitations under the License.]]></inlineHeader>
     <connection>scm:git:git@github.com:raman-babich/dbljc-marialjc-maven-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:raman-babich/dbljc-marialjc-maven-plugin.git</developerConnection>
     <url>https://github.com/raman-babich/dbljc-marialjc-maven-plugin</url>
-    <tag>HEAD</tag>
+    <tag>v0.1.0</tag>
   </scm>
   <distributionManagement>
     <snapshotRepository>
