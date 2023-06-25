@@ -342,6 +342,14 @@ limitations under the License.]]></inlineHeader>
         <version>${versions-maven-plugin.version}</version>
         <configuration>
           <!--<allowMajorUpdates>false</allowMajorUpdates>-->
+          <ruleSet>
+            <ignoreVersions>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>(?i)(.+-rc|.+-m\d|.+-(dev|alpha|beta).*)</version>
+              </ignoreVersion>
+            </ignoreVersions>
+          </ruleSet>
         </configuration>
       </plugin>
       <plugin>
